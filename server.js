@@ -4,7 +4,7 @@ var server  = http.createServer(function (req, res) {
     "Content-Type":                 "application/json",
     "Access-Control-Allow-Origin":  "*"
   });
-}).listen(1337, "127.0.0.1");
+}).listen(process.env.PORT || 3000);
 
 var $       = require('jquery'); 
 
