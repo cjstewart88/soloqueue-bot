@@ -2,9 +2,6 @@
 	"name": "soloqueue-bot",
 	"version": "0.0.1",
 	"dependencies": {
-		"socket.io":  "0.8.4",
 		"jquery":     "1.6.3",
-		"socket.io":  "0.8.4",
-		"uglify-js":  "1.1.0" 
 	}
 }
