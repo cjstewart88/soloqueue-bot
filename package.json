@@ -2,6 +2,7 @@
 	"name": "soloqueue-bot",
 	"version": "0.0.1",
 	"dependencies": {
-		"jquery":     "1.6.3"
+		"jquery":     "1.6.3",
+		"cssom":      "0.2.2", 
 	}
 }
