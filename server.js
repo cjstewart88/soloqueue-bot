@@ -9,13 +9,24 @@ var server  = http.createServer(function (req, res) {
   });
 }).listen(process.env.PORT || 3000);
 
-var the_bot = new irc.Client("irc.freenode.net", "soloqueue", { port: 6667, channels: ["#mjc"] });
+var the_bot = new irc.Client("irc.quakenet.org", "soloqueue", { port: 6667, channels: ["#soloqueue"] });
+var bot_disconnected = false;
+setup_bot_listeners(the_bot);
 
-function search_term (tester, from) {
+var statusCheck = setInterval(function () {
+  if (bot_disconnected) {
+    bot_disconnected = false;
+    the_bot = new irc.Client("irc.quakenet.org", "soloqueue", { port: 6667, channels: ["#soloqueue"] });
+    setup_bot_listeners(the_bot);
+  }
+}, 2000);
+
+function search_term (tester) {
   var tmp_search_term = tester;
   
-  if (from == "channel")  tmp_search_term.splice(0, 2); 
-  else                    tmp_search_term.splice(0, 1);
+  if (tmp_search_term[0] == "!sq") tmp_search_term.splice(0,1);
+  
+  tmp_search_term.splice(0, 1);
   
   return tmp_search_term.join();
 }
@@ -55,10 +66,7 @@ function handle_data (data, command, from) {
   
   switch (command) {
     case "counters":
-      var the_counters = the_data.data[0][1].counters;
-      
-      if (the_counters != null) the_bot.say(from, the_data.data[0][0] + " counters: " + the_counters.join(", ") + credits);
-      else                      the_bot.say(from, the_data.data[0][0] + " counters: n/a" + credits);
+      the_bot.say(from, the_data.data[0][0] + " counters: " + (the_data.data[0][1] != null ? the_data.data[0][1].counters.join(", ") : "n/a") + credits);
                                
       break;
     case "champ":
@@ -115,60 +123,26 @@ function handle_data (data, command, from) {
   }
 }
 
-the_bot.addListener("pm", function (from, msg) {
-  var tester = msg.replace(/^\s\s*/, '').replace(/\s\s*$/, '').split(" ");
-  
-  var command = tester[0];
-  
-  switch (command) {
-    case "counters":
-      if (tester[1] == null)  the_bot.say(from, "Please enter a champ you'd like counters for, ex: '!sq counters Temo'");
-      else                    get_data(search_term(tester, "pm"), command, from);
-      break;
-    case "champ":
-      if (tester[1] == null)  the_bot.say(from, "Please enter a champ, ex: '!sq champ Alistar'");
-      else                    get_data(search_term(tester, "pm"), command, from);
-      break;
-    case "item":
-      if (tester[1] == null)  the_bot.say(from, "Please enter a champ, ex: '!sq item Doran's Blade'");
-      else                    get_data(search_term(tester, "pm"), command, from);
-      break;
-    default:
-      the_bot.say(from, "sorry I dont recognize that command");
-  }
-});
+function setup_bot_listeners (the_bot) {
+  the_bot.addListener("message", function (from, channel, msg) {
+    var is_pm = (channel.indexOf("#") == 0 ? false : true);
+    
+    var message = msg.replace(/^\s\s*/, '').replace(/\s\s*$/, '').split(" ");
+        
+    if (!is_pm && message[0].toLowerCase() != "!sq") return;
 
-the_bot.addListener("message", function (from, channel, msg) {
-  if (channel.indexOf("#") != 0) return;
-  
-  var tester = msg.replace(/^\s\s*/, '').replace(/\s\s*$/, '').split(" ");
-  
-  if (tester[0].toLowerCase() != "!sq" || tester[1] == null) return;
-  
-  var command = tester[1];
-  
-  switch (command) {
-    // Only need this when testing reconnect shit
-    // case "quit":
-    //   the_bot.disconnect("later");
-    case "counters":
-      if (tester[2] == null)  the_bot.say(from, "Please enter a champ you'd like counters for, ex: '!sq counters Temo'");
-      else                    get_data(search_term(tester, "channel"), command, from);
-      break;
-    case "champ":
-      if (tester[2] == null)  the_bot.say(from, "Please enter a champ, ex: '!sq champ Alistar'");
-      else                    get_data(search_term(tester, "channel"), command, from);
-      break;
-    case "item":
-      if (tester[2] == null)  the_bot.say(from, "Please enter a champ, ex: '!sq item Doran's Blade'");
-      else                    get_data(search_term(tester, "channel"), command, from);
-      break;
-    default:
-      the_bot.say("#mjc", "sorry I dont recognize that command");
-  }
-});
+    var command = (is_pm ? message[0] : message[1]);
+    
+    if (command == "counters" || command == "champ" || command == "item") {
+      if ((is_pm ? message[1] : message[2]) == null) the_bot.say(from, "Please complete the command. Ex: Counters '!sq counters Teemo' - Champ Info '!sq champ Alistar' - Item Info '!sq item Doran'");
+      else get_data(search_term(message), command, (is_pm ? from : channel));
+    }
+    else {
+      the_bot.say((is_pm ? from : channel), "Sorry, " + from + " I dont recognize that command.");
+    }
+  });
 
-// This is suppose to reconnect the bot... but somethings broke
-the_bot.addListener("bot_disconnected", function () {
-  //the_bot.connect();
-});
+  the_bot.addListener("bot_disconnected", function () {
+    bot_disconnected = true;
+  });
+}
