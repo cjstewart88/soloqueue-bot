@@ -57,7 +57,6 @@ function get_data (search_input, command, from) {
 
 function handle_data (data, command, from) {
   var the_data  = JSON.parse(data, command);
-  var credits   = " [Brought to you by: http://www.soloqueue.com/]"
   
   if (the_data.data.length == 0) {
     the_bot.say(from, "Sorry, the item or champ you requested data on couldn't be found.");
@@ -66,7 +65,7 @@ function handle_data (data, command, from) {
   
   switch (command) {
     case "counters":
-      the_bot.say(from, the_data.data[0][0] + " counters: " + (the_data.data[0][1] != null ? the_data.data[0][1].counters.join(", ") : "n/a") + credits);
+      the_bot.say(from, the_data.data[0][0] + " counters: " + (the_data.data[0][1] != null ? the_data.data[0][1].counters.join(", ") : "n/a") + "[More on: http://www.soloqueue.com/" + the_data.data[0][0] + "]");
                                
       break;
     case "champ":
@@ -89,7 +88,7 @@ function handle_data (data, command, from) {
         }
       });
       
-      if (found_champ)  the_bot.say(from, "Champion Name: " + champ_name + response + credits);
+      if (found_champ)  the_bot.say(from, "Champion Name: " + champ_name + response + "[More on: http://www.soloqueue.com/" + champ_name + "]");
       else              the_bot.say(from, "Sorry, the champion you requested data on couldn't be found.");
       
       break;
@@ -116,8 +115,8 @@ function handle_data (data, command, from) {
         }
       });
       
-      if (found_item) the_bot.say(from, "Item Name: " + item_name + response + credits);
-      else            the_bot.say(from, "Sorry, the item you requested data on couldn't be found.");
+      if (found_item) the_bot.say(from, "Item Name: " + item_name + response + "[More on: http://www.soloqueue.com/" + item_name + "]");
+      else            the_bot.say(from, "Sorry, the item you requested data on couldn't be found, maybe try searching on http://www.soloqueue.com/");
       
       break;
   }
@@ -132,6 +131,15 @@ function setup_bot_listeners (the_bot) {
     if (!is_pm && message[0].toLowerCase() != "!sq") return;
 
     var command = (is_pm ? message[0] : message[1]);
+    
+    if (command == "help") {
+      the_bot.say(from, "The soloqueue bot is a service brought to you by, http://www.soloqueue.com, a League of Legends information hub.");
+      the_bot.say(from, "Commands");
+      the_bot.say(from, "--------");
+      the_bot.say(from, "Item Search: '!sq item ITEM NAME'");
+      the_bot.say(from, "Champ Search: '!sq champ CHAMP NAME'");
+      the_bot.say(from, "Champ Counters: '!sq counters CHAMP NAME'");
+    }
     
     if (command == "counters" || command == "champ" || command == "item") {
       if ((is_pm ? message[1] : message[2]) == null) the_bot.say(from, "Please complete the command. Ex: Counters '!sq counters Teemo' - Champ Info '!sq champ Alistar' - Item Info '!sq item Doran'");
