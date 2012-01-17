@@ -18,485 +18,14 @@
 */
 
 exports.Client = Client;
-
 var net  = require('net');
 var tls  = require('tls');
 var util = require('util');
 
-const replyFor = { // {{{
-   "200" : {
-      "name" : "rpl_tracelink",
-      "type" : "reply"
-   },
-   "201" : {
-      "name" : "rpl_traceconnecting",
-      "type" : "reply"
-   },
-   "202" : {
-      "name" : "rpl_tracehandshake",
-      "type" : "reply"
-   },
-   "203" : {
-      "name" : "rpl_traceunknown",
-      "type" : "reply"
-   },
-   "204" : {
-      "name" : "rpl_traceoperator",
-      "type" : "reply"
-   },
-   "205" : {
-      "name" : "rpl_traceuser",
-      "type" : "reply"
-   },
-   "206" : {
-      "name" : "rpl_traceserver",
-      "type" : "reply"
-   },
-   "208" : {
-      "name" : "rpl_tracenewtype",
-      "type" : "reply"
-   },
-   "211" : {
-      "name" : "rpl_statslinkinfo",
-      "type" : "reply"
-   },
-   "212" : {
-      "name" : "rpl_statscommands",
-      "type" : "reply"
-   },
-   "213" : {
-      "name" : "rpl_statscline",
-      "type" : "reply"
-   },
-   "214" : {
-      "name" : "rpl_statsnline",
-      "type" : "reply"
-   },
-   "215" : {
-      "name" : "rpl_statsiline",
-      "type" : "reply"
-   },
-   "216" : {
-      "name" : "rpl_statskline",
-      "type" : "reply"
-   },
-   "218" : {
-      "name" : "rpl_statsyline",
-      "type" : "reply"
-   },
-   "219" : {
-      "name" : "rpl_endofstats",
-      "type" : "reply"
-   },
-   "221" : {
-      "name" : "rpl_umodeis",
-      "type" : "reply"
-   },
-   "241" : {
-      "name" : "rpl_statslline",
-      "type" : "reply"
-   },
-   "242" : {
-      "name" : "rpl_statsuptime",
-      "type" : "reply"
-   },
-   "243" : {
-      "name" : "rpl_statsoline",
-      "type" : "reply"
-   },
-   "244" : {
-      "name" : "rpl_statshline",
-      "type" : "reply"
-   },
-   "251" : {
-      "name" : "rpl_luserclient",
-      "type" : "reply"
-   },
-   "252" : {
-      "name" : "rpl_luserop",
-      "type" : "reply"
-   },
-   "253" : {
-      "name" : "rpl_luserunknown",
-      "type" : "reply"
-   },
-   "254" : {
-      "name" : "rpl_luserchannels",
-      "type" : "reply"
-   },
-   "255" : {
-      "name" : "rpl_luserme",
-      "type" : "reply"
-   },
-   "256" : {
-      "name" : "rpl_adminme",
-      "type" : "reply"
-   },
-   "257" : {
-      "name" : "rpl_adminloc1",
-      "type" : "reply"
-   },
-   "258" : {
-      "name" : "rpl_adminloc2",
-      "type" : "reply"
-   },
-   "259" : {
-      "name" : "rpl_adminemail",
-      "type" : "reply"
-   },
-   "261" : {
-      "name" : "rpl_tracelog",
-      "type" : "reply"
-   },
-   "300" : {
-      "name" : "rpl_none",
-      "type" : "reply"
-   },
-   "301" : {
-      "name" : "rpl_away",
-      "type" : "reply"
-   },
-   "302" : {
-      "name" : "rpl_userhost",
-      "type" : "reply"
-   },
-   "303" : {
-      "name" : "rpl_ison",
-      "type" : "reply"
-   },
-   "305" : {
-      "name" : "rpl_unaway",
-      "type" : "reply"
-   },
-   "306" : {
-      "name" : "rpl_nowaway",
-      "type" : "reply"
-   },
-   "311" : {
-      "name" : "rpl_whoisuser",
-      "type" : "reply"
-   },
-   "312" : {
-      "name" : "rpl_whoisserver",
-      "type" : "reply"
-   },
-   "313" : {
-      "name" : "rpl_whoisoperator",
-      "type" : "reply"
-   },
-   "314" : {
-      "name" : "rpl_whowasuser",
-      "type" : "reply"
-   },
-   "315" : {
-      "name" : "rpl_endofwho",
-      "type" : "reply"
-   },
-   "317" : {
-      "name" : "rpl_whoisidle",
-      "type" : "reply"
-   },
-   "318" : {
-      "name" : "rpl_endofwhois",
-      "type" : "reply"
-   },
-   "319" : {
-      "name" : "rpl_whoischannels",
-      "type" : "reply"
-   },
-   "321" : {
-      "name" : "rpl_liststart",
-      "type" : "reply"
-   },
-   "322" : {
-      "name" : "rpl_list",
-      "type" : "reply"
-   },
-   "323" : {
-      "name" : "rpl_listend",
-      "type" : "reply"
-   },
-   "324" : {
-      "name" : "rpl_channelmodeis",
-      "type" : "reply"
-   },
-   "331" : {
-      "name" : "rpl_notopic",
-      "type" : "reply"
-   },
-   "332" : {
-      "name" : "rpl_topic",
-      "type" : "reply"
-   },
-   "341" : {
-      "name" : "rpl_inviting",
-      "type" : "reply"
-   },
-   "342" : {
-      "name" : "rpl_summoning",
-      "type" : "reply"
-   },
-   "351" : {
-      "name" : "rpl_version",
-      "type" : "reply"
-   },
-   "352" : {
-      "name" : "rpl_whoreply",
-      "type" : "reply"
-   },
-   "353" : {
-      "name" : "rpl_namreply",
-      "type" : "reply"
-   },
-   "364" : {
-      "name" : "rpl_links",
-      "type" : "reply"
-   },
-   "365" : {
-      "name" : "rpl_endoflinks",
-      "type" : "reply"
-   },
-   "366" : {
-      "name" : "rpl_endofnames",
-      "type" : "reply"
-   },
-   "367" : {
-      "name" : "rpl_banlist",
-      "type" : "reply"
-   },
-   "368" : {
-      "name" : "rpl_endofbanlist",
-      "type" : "reply"
-   },
-   "369" : {
-      "name" : "rpl_endofwhowas",
-      "type" : "reply"
-   },
-   "371" : {
-      "name" : "rpl_info",
-      "type" : "reply"
-   },
-   "372" : {
-      "name" : "rpl_motd",
-      "type" : "reply"
-   },
-   "374" : {
-      "name" : "rpl_endofinfo",
-      "type" : "reply"
-   },
-   "375" : {
-      "name" : "rpl_motdstart",
-      "type" : "reply"
-   },
-   "376" : {
-      "name" : "rpl_endofmotd",
-      "type" : "reply"
-   },
-   "381" : {
-      "name" : "rpl_youreoper",
-      "type" : "reply"
-   },
-   "382" : {
-      "name" : "rpl_rehashing",
-      "type" : "reply"
-   },
-   "391" : {
-      "name" : "rpl_time",
-      "type" : "reply"
-   },
-   "392" : {
-      "name" : "rpl_usersstart",
-      "type" : "reply"
-   },
-   "393" : {
-      "name" : "rpl_users",
-      "type" : "reply"
-   },
-   "394" : {
-      "name" : "rpl_endofusers",
-      "type" : "reply"
-   },
-   "395" : {
-      "name" : "rpl_nousers",
-      "type" : "reply"
-   },
-   "401" : {
-      "name" : "err_nosuchnick",
-      "type" : "error"
-   },
-   "402" : {
-      "name" : "err_nosuchserver",
-      "type" : "error"
-   },
-   "403" : {
-      "name" : "err_nosuchchannel",
-      "type" : "error"
-   },
-   "404" : {
-      "name" : "err_cannotsendtochan",
-      "type" : "error"
-   },
-   "405" : {
-      "name" : "err_toomanychannels",
-      "type" : "error"
-   },
-   "406" : {
-      "name" : "err_wasnosuchnick",
-      "type" : "error"
-   },
-   "407" : {
-      "name" : "err_toomanytargets",
-      "type" : "error"
-   },
-   "409" : {
-      "name" : "err_noorigin",
-      "type" : "error"
-   },
-   "411" : {
-      "name" : "err_norecipient",
-      "type" : "error"
-   },
-   "412" : {
-      "name" : "err_notexttosend",
-      "type" : "error"
-   },
-   "413" : {
-      "name" : "err_notoplevel",
-      "type" : "error"
-   },
-   "414" : {
-      "name" : "err_wildtoplevel",
-      "type" : "error"
-   },
-   "421" : {
-      "name" : "err_unknowncommand",
-      "type" : "error"
-   },
-   "422" : {
-      "name" : "err_nomotd",
-      "type" : "error"
-   },
-   "423" : {
-      "name" : "err_noadmininfo",
-      "type" : "error"
-   },
-   "424" : {
-      "name" : "err_fileerror",
-      "type" : "error"
-   },
-   "431" : {
-      "name" : "err_nonicknamegiven",
-      "type" : "error"
-   },
-   "432" : {
-      "name" : "err_erroneusnickname",
-      "type" : "error"
-   },
-   "433" : {
-      "name" : "err_nicknameinuse",
-      "type" : "error"
-   },
-   "436" : {
-      "name" : "err_nickcollision",
-      "type" : "error"
-   },
-   "441" : {
-      "name" : "err_usernotinchannel",
-      "type" : "error"
-   },
-   "442" : {
-      "name" : "err_notonchannel",
-      "type" : "error"
-   },
-   "443" : {
-      "name" : "err_useronchannel",
-      "type" : "error"
-   },
-   "444" : {
-      "name" : "err_nologin",
-      "type" : "error"
-   },
-   "445" : {
-      "name" : "err_summondisabled",
-      "type" : "error"
-   },
-   "446" : {
-      "name" : "err_usersdisabled",
-      "type" : "error"
-   },
-   "451" : {
-      "name" : "err_notregistered",
-      "type" : "error"
-   },
-   "461" : {
-      "name" : "err_needmoreparams",
-      "type" : "error"
-   },
-   "462" : {
-      "name" : "err_alreadyregistred",
-      "type" : "error"
-   },
-   "463" : {
-      "name" : "err_nopermforhost",
-      "type" : "error"
-   },
-   "464" : {
-      "name" : "err_passwdmismatch",
-      "type" : "error"
-   },
-   "465" : {
-      "name" : "err_yourebannedcreep",
-      "type" : "error"
-   },
-   "467" : {
-      "name" : "err_keyset",
-      "type" : "error"
-   },
-   "471" : {
-      "name" : "err_channelisfull",
-      "type" : "error"
-   },
-   "472" : {
-      "name" : "err_unknownmode",
-      "type" : "error"
-   },
-   "473" : {
-      "name" : "err_inviteonlychan",
-      "type" : "error"
-   },
-   "474" : {
-      "name" : "err_bannedfromchan",
-      "type" : "error"
-   },
-   "475" : {
-      "name" : "err_badchannelkey",
-      "type" : "error"
-   },
-   "481" : {
-      "name" : "err_noprivileges",
-      "type" : "error"
-   },
-   "482" : {
-      "name" : "err_chanoprivsneeded",
-      "type" : "error"
-   },
-   "483" : {
-      "name" : "err_cantkillserver",
-      "type" : "error"
-   },
-   "491" : {
-      "name" : "err_nooperhost",
-      "type" : "error"
-   },
-   "501" : {
-      "name" : "err_umodeunknownflag",
-      "type" : "error"
-   },
-   "502" : {
-      "name" : "err_usersdontmatch",
-      "type" : "error"
-   }
-}; // }}}
+var colors = require('./colors');
+exports.colors = colors;
+
+var replyFor = require('./codes');
 
 function Client(server, nick, opt) {
     var self = this;
@@ -504,8 +33,8 @@ function Client(server, nick, opt) {
         server: server,
         nick: nick,
         password: null,
-        userName: 'nirc',
-        realName: 'nirc IRC client',
+        userName: 'nodebot',
+        realName: 'nodeJS IRC client',
         port: 6667,
         debug: false,
         showErrors: false,
@@ -515,7 +44,9 @@ function Client(server, nick, opt) {
         retryCount: null,
         retryDelay: 2000,
         secure: false,
-        floodProtection: false
+        selfSigned: false,
+        floodProtection: false,
+        stripColors: false
     };
 
     if (typeof arguments[2] == 'object') {
@@ -544,16 +75,32 @@ function Client(server, nick, opt) {
                 // (normally this is because you chose something too long and
                 // the server has shortened it
                 self.nick = message.args[0];
-                self.emit('registered');
+                self.emit('registered', message);
                 break;
             case "002":
-            case "003": 
+            case "003":
             case "004":
+                break;
             case "005":
+                message.args.forEach(function(arg) {
+                    var match;
+                    if ( match = arg.match(/PREFIX=\((.*?)\)(.*)/) ) {
+                        match[1] = match[1].split('');
+                        match[2] = match[2].split('');
+                        while ( match[1].length ) {
+                            self.modeForPrefix[match[2][0]] = match[1][0];
+                            self.prefixForMode[match[1].shift()] = match[2].shift();
+                        }
+                    }
+                });
+                break;
             case "rpl_luserclient":
             case "rpl_luserop":
             case "rpl_luserchannels":
             case "rpl_luserme":
+            case "rpl_localusers":
+            case "rpl_globalusers":
+            case "rpl_statsconn":
                 // Random welcome crap, ignoring
                 break;
             case "err_nicknameinuse":
@@ -573,7 +120,7 @@ function Client(server, nick, opt) {
                     to   = null;
                 }
                 var text = message.args[1];
-                self.emit('notice', from, to, text);
+                self.emit('notice', from, to, text, message);
 
                 if ( self.opt.debug && to == self.nick )
                     util.log('GOT NOTICE from ' + (from?'"'+from+'"':'the server') + ': "' + text + '"');
@@ -581,26 +128,50 @@ function Client(server, nick, opt) {
             case "MODE":
                 if ( self.opt.debug )
                     util.log("MODE:" + message.args[0] + " sets mode: " + message.args[1]);
-                // properly handle mode changes for users
-                if ( message.args.length >= 3 ) {
-                    var channel = self.chans[message.args[0]],
-                        nicklist_offset = 2,
-                        mode = message.args[1].split(''),
-                        adding = mode.shift() === "+";
-                    for (var i = 0; i < mode.length; i++) {
-                        if (mode[i] == 'o') {
-                            if (adding)
-                                channel.users[message.args[nicklist_offset+i]] = '@';
-                            else
-                                channel.users[message.args[nicklist_offset+i]] = '';
-                        } else if (mode[i] == 'v') {
-                            if (adding)
-                                channel.users[message.args[nicklist_offset+i]] = '+';
-                            else
-                                channel.users[message.args[nicklist_offset+i]] = '';
+
+                var channel = self.chanData(message.args[0]);
+                if ( !channel ) break;
+                var modeList = message.args[1].split('');
+                var adding = true;
+                var modeArgs = message.args.splice(2);
+                modeList.forEach(function(mode) {
+                    if ( mode == '+' ) { adding = true; return; }
+                    if ( mode == '-' ) { adding = false; return; }
+                    if ( mode in self.prefixForMode ) {
+                        // user modes
+                        var user = modeArgs.shift();
+                        if ( adding ) {
+                            if ( channel.users[user].indexOf(self.prefixForMode[mode]) === -1 )
+                                channel.users[user] += self.prefixForMode[mode];
+
+                            self.emit('+mode', message.args[0], message.nick, mode, user, message);
+                        }
+                        else {
+                            channel.users[user] = channel.users[user].replace(self.prefixForMode[mode], '');
+                            self.emit('-mode', message.args[0], message.nick, mode, user, message);
                         }
                     }
+                    else {
+                        var modeArg;
+                        // channel modes
+                        if ( mode.match(/^[bkl]$/) ) {
+                            modeArg = modeArgs.shift();
+                            if ( modeArg.length === 0 )
+                                modeArg = undefined;
+                        }
+                        // TODO - deal nicely with channel modes that take args
+                        if ( adding ) {
+                            if ( channel.mode.indexOf(mode) === -1 )
+                                channel.mode += mode;
+
+                            self.emit('+mode', message.args[0], message.nick, mode, modeArg, message);
+                        }
+                        else {
+                            channel.mode = channel.mode.replace(mode, '');
+                            self.emit('-mode', message.args[0], message.nick, mode, modeArg, message);
+                        }
                     }
+                });
                 break;
             case "NICK":
                 if ( self.opt.debug )
@@ -619,7 +190,7 @@ function Client(server, nick, opt) {
                 }
 
                 // old nick, new nick, channels
-                self.emit('nick', message.nick, message.args[0], channels);
+                self.emit('nick', message.nick, message.args[0], channels, message);
                 break;
             case "rpl_motdstart":
                 self.motd = message.args[1] + "\n";
@@ -633,22 +204,31 @@ function Client(server, nick, opt) {
                 self.emit('motd', self.motd);
                 break;
             case "rpl_namreply":
-                var channel = self.chans[message.args[2]];
-                var users = message.args[3].split(/ +/);
-                users.forEach(function (user) {
-                    var match = user.match(/^([@+%~\&])?(.*)$/);
-                    if ( !match[1] )
-                        match[1] = "";
-                    channel.users[match[2]] = match[1];
-                });
+                var channel = self.chanData(message.args[2]);
+                var users = message.args[3].trim().split(/ +/);
+                if ( channel ) {
+                    users.forEach(function (user) {
+                        var match = user.match(/^(.)(.*)$/);
+                        if ( match ) {
+                            if ( match[1] in self.modeForPrefix ) {
+                                channel.users[match[2]] = match[1];
+                            }
+                            else {
+                                channel.users[match[1] + match[2]] = '';
+                            }
+                        }
+                    });
+                }
                 break;
             case "rpl_endofnames":
-                var channel = self.chans[message.args[1]];
-                self.emit('names', message.args[1], channel.users);
-                self.send('MODE', message.args[1]);
+                var channel = self.chanData(message.args[1]);
+                if ( channel ) {
+                    self.emit('names', message.args[1], channel.users);
+                    self.send('MODE', message.args[1]);
+                }
                 break;
             case "rpl_topic":
-                var channel = self.chans[message.args[1]];
+                var channel = self.chanData(message.args[1]);
                 if ( channel ) {
                     channel.topic = message.args[2];
                 }
@@ -681,89 +261,125 @@ function Client(server, nick, opt) {
             case "rpl_endofwhois":
                 self.emit('whois', self._clearWhoisData(message.args[1]));
                 break;
+            case "rpl_liststart":
+                self.channellist = [];
+                self.emit('channellist_start');
+                break;
+            case "rpl_list":
+                var channel = {
+                    name: message.args[1],
+                    users: message.args[2],
+                    topic: message.args[3],
+                };
+                self.emit('channellist_item', channel);
+                self.channellist.push(channel);
+                break;
+            case "rpl_listend":
+                self.emit('channellist', self.channellist);
+                break;
             case "333":
                 // TODO emit?
-                var channel = self.chans[message.args[1]];
+                var channel = self.chanData(message.args[1]);
                 if ( channel ) {
                     channel.topicBy = message.args[2];
                     // channel, topic, nick
-                    self.emit('topic', message.args[1], channel.topic, channel.topicBy);
+                    self.emit('topic', message.args[1], channel.topic, channel.topicBy, message);
                 }
                 break;
             case "TOPIC":
                 // channel, topic, nick
-                self.emit('topic', message.args[0], message.args[1], nick);
+                self.emit('topic', message.args[0], message.args[1], message.nick, message);
 
-                var channel = self.chans[message.args[0]];
+                var channel = self.chanData(message.args[0]);
                 if ( channel ) {
                     channel.topic = message.args[1];
                     channel.topicBy = message.nick;
                 }
                 break;
             case "rpl_channelmodeis":
-                var channel = self.chans[message.args[1]];
+                var channel = self.chanData(message.args[1]);
                 if ( channel ) {
                     channel.mode = message.args[2];
                 }
                 break;
             case "329":
-                var channel = self.chans[message.args[1]];
+                var channel = self.chanData(message.args[1]);
                 if ( channel ) {
                     channel.created = message.args[2];
                 }
                 break;
             case "JOIN":
                 // channel, who
-                self.emit('join', message.args[0], message.nick);
-                self.emit('join' + message.args[0], message.nick);
                 if ( self.nick == message.nick ) {
-                    self.chans[message.args[0].toLowerCase()] = {
-                        users: {},
-                    };
+                    self.chanData(message.args[0], true);
                 }
                 else {
-                    var channel = self.chans[message.args[0].toLowerCase()];
+                    var channel = self.chanData(message.args[0]);
                     channel.users[message.nick] = '';
+                }
+                self.emit('join', message.args[0], message.nick, message);
+                self.emit('join' + message.args[0], message.nick, message);
+                if ( message.args[0] != message.args[0].toLowerCase() ) {
+                    self.emit('join' + message.args[0].toLowerCase(), message.nick, message);
                 }
                 break;
             case "PART":
                 // channel, who, reason
-                self.emit('part', message.args[0], message.nick, message.args[1]);
-                self.emit('part' + message.args[0], message.nick, message.args[1]);
+                self.emit('part', message.args[0], message.nick, message.args[1], message);
+                self.emit('part' + message.args[0], message.nick, message.args[1], message);
+                if ( message.args[0] != message.args[0].toLowerCase() ) {
+                    self.emit('part' + message.args[0].toLowerCase(), message.nick, message.args[1], message);
+                }
                 if ( self.nick == message.nick ) {
-                    delete self.chans[message.args[0].toLowerCase()];
+                    var channel = self.chanData(message.args[0]);
+                    delete self.chans[channel.key];
                 }
                 else {
-                    var channel = self.chans[message.args[0].toLowerCase()];
+                    var channel = self.chanData(message.args[0]);
                     delete channel.users[message.nick];
                 }
                 break;
             case "KICK":
                 // channel, who, by, reason
-                self.emit('kick', message.args[0], message.args[1], message.nick, message.args[2]);
-                self.emit('kick' + message.args[0], message.args[1], message.nick, message.args[2]);
+                self.emit('kick', message.args[0], message.args[1], message.nick, message.args[2], message);
+                self.emit('kick' + message.args[0], message.args[1], message.nick, message.args[2], message);
+                if ( message.args[0] != message.args[0].toLowerCase() ) {
+                    self.emit('kick' + message.args[0].toLowerCase(), message.args[1], message.nick, message.args[2], message);
+                }
 
                 if ( self.nick == message.args[1] ) {
-                    delete self.chans[message.args[0].toLowerCase()];
+                    var channel = self.chanData(message.args[0]);
+                    delete self.chans[channel.key];
                 }
                 else {
-                    var channel = self.chans[message.args[0].toLowerCase()];
+                    var channel = self.chanData(message.args[0]);
                     delete channel.users[message.args[1]];
                 }
                 break;
             case "KILL":
                 var nick = message.args[0];
+                var channels = [];
                 for ( var channel in self.chans ) {
+                    if ( self.chans[channel].users[nick])
+                        channels.push(channel);
+
                     delete self.chans[channel].users[nick];
                 }
+                self.emit('kill', nick, message.args[1], channels, message);
                 break;
             case "PRIVMSG":
                 var from = message.nick;
                 var to   = message.args[0];
                 var text = message.args[1];
-                self.emit('message', from, to, text);
-                if ( to.match(/^[&#]/) ) self.emit('message' + to, to, from, text);
-                if ( to == self.nick ) self.emit('pm', from, text);
+                self.emit('message', from, to, text, message);
+                if ( to.match(/^[&#]/) ) {
+                    self.emit('message#', from, to, text, message);
+                    self.emit('message' + to, from, text, message);
+                    if ( to != to.toLowerCase() ) {
+                        self.emit('message' + to.toLowerCase(), from, text, message);
+                    }
+                }
+                if ( to == self.nick ) self.emit('pm', from, text, message);
 
                 if ( self.opt.debug && to == self.nick )
                     util.log('GOT MESSAGE from ' + from + ': ' + text);
@@ -772,7 +388,7 @@ function Client(server, nick, opt) {
                 var from = message.nick;
                 var to   = message.args[0];
                 var channel = message.args[1];
-                self.emit('invite', channel, from);
+                self.emit('invite', channel, from, message);
                 break;
             case "QUIT":
                 if (message.nick == self.nick ) self.emit('bot_disconnected');
@@ -796,7 +412,11 @@ function Client(server, nick, opt) {
                 }
 
                 // who, reason, channels
-                self.emit('quit', message.nick, message.args[0], channels);
+                self.emit('quit', message.nick, message.args[0], channels, message);
+                break;
+            case "err_umodeunknownflag":
+                if ( self.opt.showErrors )
+                    util.log("\033[01;31mERROR: " + util.inspect(message) + "\033[0m");
                 break;
             default:
                 if ( message.commandType == 'error' ) {
@@ -814,11 +434,11 @@ function Client(server, nick, opt) {
 
     self.addListener('kick', function(channel, who, by, reason) {
         if ( self.opt.autoRejoin )
-            self.send('JOIN', channel);
+            self.send.apply(self, ['JOIN'].concat(channel.split(' ')));
     });
     self.addListener('motd', function (motd) {
         self.opt.channels.forEach(function(channel) {
-            self.send('JOIN', channel);
+            self.send.apply(self, ['JOIN'].concat(channel.split(' ')));
         });
     });
 
@@ -828,10 +448,32 @@ function Client(server, nick, opt) {
 util.inherits(Client, process.EventEmitter);
 
 Client.prototype.conn = null;
+Client.prototype.prefixForMode = {};
+Client.prototype.modeForPrefix = {};
 Client.prototype.chans = {};
 Client.prototype._whoisData = {};
-Client.prototype.connect = function ( retryCount ) { // {{{
+Client.prototype.chanData = function( name, create ) { // {{{
+    var key = name.toLowerCase();
+    if ( create ) {
+        this.chans[key] = this.chans[key] || {
+            key: key,
+            serverName: name,
+            users: {},
+            mode: '',
+        };
+    }
+
+    return this.chans[key];
+} // }}}
+Client.prototype.connect = function ( retryCount, callback ) { // {{{
+    if ( typeof(retryCount) === 'function' ) {
+        callback = retryCount;
+        retryCount = undefined;
+    }
     retryCount = retryCount || 0;
+    if (typeof(callback) === 'function') {
+      this.once('registered', callback);
+    }
     var self = this;
     self.chans = {};
     // try to connect to the server
@@ -844,7 +486,10 @@ Client.prototype.connect = function ( retryCount ) { // {{{
         self.conn = tls.connect(self.opt.port, self.opt.server, creds, function() {
            // callback called only after successful socket connection
            self.conn.connected = true;
-           if (self.conn.authorized) {
+           if (self.conn.authorized ||
+               (self.opt.selfSigned &&
+                (self.conn.authorizationError === 'DEPTH_ZERO_SELF_SIGNED_CERT' ||
+                self.conn.authorizationError === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE'))) {
               // authorization successful
               self.conn.setEncoding('utf-8');
 
@@ -882,7 +527,7 @@ Client.prototype.connect = function ( retryCount ) { // {{{
         var lines = buffer.split("\r\n");
         buffer = lines.pop();
         lines.forEach(function (line) {
-            var message = parseMessage(line);
+            var message = parseMessage(line, self.opt.stripColors);
             try {
                 self.emit('raw', message);
             } catch ( err ) {
@@ -918,14 +563,24 @@ Client.prototype.connect = function ( retryCount ) { // {{{
             self.connect( retryCount + 1 );
         }, self.opt.retryDelay );
     });
+    self.conn.addListener("error", function(exception) {
+        self.emit("netError", exception);
+    });
 }; // }}}
-Client.prototype.disconnect = function ( message ) { // {{{
+Client.prototype.disconnect = function ( message, callback ) { // {{{
+    if ( typeof(message) === 'function' ) {
+        callback = message;
+        message = undefined;
+    }
     message = message || "node-irc says goodbye";
     var self = this;
     if ( self.conn.readyState == 'open' ) {
         self.send( "QUIT", message );
     }
     self.conn.requestedDisconnect = true;
+    if (typeof(callback) === 'function') {
+      self.conn.once('end', callback);
+    }
     self.conn.end();
 }; // }}}
 Client.prototype.send = function(command) { // {{{
@@ -972,8 +627,7 @@ Client.prototype.activateFloodProtection = function() { // {{{
 
 }; // }}}
 Client.prototype.join = function(channel, callback) { // {{{
-    var callbackWrapper = function () {
-        this.removeListener('join' + channel, callbackWrapper);
+    this.once('join' + channel, function () {
         // if join is successful, add this channel to opts.channels
         // so that it will be re-joined upon reconnect (as channels
         // specified in options are)
@@ -984,17 +638,12 @@ Client.prototype.join = function(channel, callback) { // {{{
         if ( typeof(callback) == 'function' ) {
             return callback.apply(this, arguments);
         }
-    };
-    this.addListener('join' + channel, callbackWrapper);
-    this.send('JOIN', channel);
+    });
+    this.send.apply(this, ['JOIN'].concat(channel.split(' ')));
 } // }}}
 Client.prototype.part = function(channel, callback) { // {{{
     if ( typeof(callback) == 'function' ) {
-        var callbackWrapper = function () {
-            this.removeListener('part' + channel, callbackWrapper);
-            return callback.apply(this, arguments);
-        };
-        this.addListener('part' + channel, callbackWrapper);
+        this.once('part' + channel, callback);
     }
 
     // remove this channel from this.opt.channels so we won't rejoin
@@ -1016,6 +665,16 @@ Client.prototype.say = function(target, text) { // {{{
         });
     }
 } // }}}
+Client.prototype.action = function(channel, text) { // {{{
+    var self = this;
+    if (typeof text !== 'undefined') {
+        text.toString().split(/\r?\n/).filter(function(line) {
+            return line.length > 0;
+        }).forEach(function(line) {
+            self.say(channel, '\u0001ACTION ' + line + '\u0001');
+        });
+    }
+} // }}}
 Client.prototype.notice = function(target, text) { // {{{
     this.send('NOTICE', target, text);
 } // }}}
@@ -1031,6 +690,11 @@ Client.prototype.whois = function(nick, callback) { // {{{
     }
     this.send('WHOIS', nick);
 } // }}}
+Client.prototype.list = function() { // {{{
+    var args = Array.prototype.slice.call(arguments, 0);
+    args.unshift('LIST');
+    this.send.apply(this, args);
+} // }}}
 Client.prototype._addWhoisData = function(nick, key, value, onlyIfExists) { // {{{
     if ( onlyIfExists && !this._whoisData[nick] ) return;
     this._whoisData[nick] = this._whoisData[nick] || {nick: nick};
@@ -1043,14 +707,18 @@ Client.prototype._clearWhoisData = function(nick) { // {{{
 } // }}}
 
 /*
- * parseMessage(line)
+ * parseMessage(line, stripColors)
  *
  * takes a raw "line" from the IRC server and turns it into an object with
  * useful keys
  */
-function parseMessage(line) { // {{{
+function parseMessage(line, stripColors) { // {{{
     var message = {};
     var match;
+
+    if (stripColors) {
+        line = line.replace(/[\x02\x1f\x16\x0f]|\x03\d{0,2}(?:,\d{0,2})?/g, "");
+    }
 
     // Parse prefix
     if ( match = line.match(/^:([^ ]+) +/) ) {
@@ -1067,7 +735,7 @@ function parseMessage(line) { // {{{
     }
 
     // Parse command
-    match = line.match(/^([^ ]+) +/);
+    match = line.match(/^([^ ]+) */);
     message.command = match[1];
     message.rawCommand = match[1];
     message.commandType = 'normal';
