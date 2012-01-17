@@ -65,7 +65,7 @@ function handle_data (data, command, from) {
   
   switch (command) {
     case "counters":
-      the_bot.say(from, the_data.data[0][0] + " counters: " + (the_data.data[0][1] != null ? the_data.data[0][1].counters.join(", ") : "n/a") + "[More on: http://www.soloqueue.com/#" + escape(the_data.data[0][0]) + "]");
+      the_bot.say(from, the_data.data[0][0] + " counters: " + (the_data.data[0][1] != null ? the_data.data[0][1].counters.join(", ") : "n/a") + " [More on: http://www.soloqueue.com/#" + escape(the_data.data[0][0]) + "]");
                                
       break;
     case "champ":
@@ -88,7 +88,7 @@ function handle_data (data, command, from) {
         }
       });
       
-      if (found_champ)  the_bot.say(from, "Champion Name: " + champ_name + response + "[More on: http://www.soloqueue.com/#" + escape(champ_name) + "]");
+      if (found_champ)  the_bot.say(from, "Champion Name: " + champ_name + response + " [More on: http://www.soloqueue.com/#" + escape(champ_name) + "]");
       else              the_bot.say(from, "Sorry, the champion you requested data on couldn't be found.");
       
       break;
@@ -139,6 +139,7 @@ function setup_bot_listeners (the_bot) {
       the_bot.say(from, "Item Search: '!sq item ITEM NAME'");
       the_bot.say(from, "Champ Search: '!sq champ CHAMP NAME'");
       the_bot.say(from, "Champ Counters: '!sq counters CHAMP NAME'");
+      return;
     }
     
     if (command == "counters" || command == "champ" || command == "item") {
