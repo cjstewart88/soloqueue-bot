@@ -775,6 +775,7 @@ function Client(server, nick, opt) {
                 self.emit('invite', channel, from);
                 break;
             case "QUIT":
+                if (message.nick == self.nick ) self.emit('bot_disconnected');
                 if ( self.opt.debug )
                     util.log("QUIT: " + message.prefix + " " + message.args.join(" "));
                 if ( self.nick == message.nick ) {

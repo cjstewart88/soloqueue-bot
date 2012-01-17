@@ -148,6 +148,8 @@ the_bot.addListener("message", function (from, channel, msg) {
   var command = tester[1];
   
   switch (command) {
+    case "quit":
+      the_bot.disconnect("later");
     case "counters":
       if (tester[2] == null)  the_bot.say(from, "Please enter a champ you'd like counters for, ex: '!sq counters Temo'");
       else                    get_data(search_term(tester, "channel"), command, from);
@@ -163,4 +165,9 @@ the_bot.addListener("message", function (from, channel, msg) {
     default:
       the_bot.say("#mjc", "sorry I dont recognize that command");
   }
+});
+
+// This is suppose to reconnect the bot... but somethings broke
+the_bot.addListener("bot_disconnected", function () {
+  //the_bot.connect();
 });
