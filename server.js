@@ -148,8 +148,9 @@ the_bot.addListener("message", function (from, channel, msg) {
   var command = tester[1];
   
   switch (command) {
-    case "quit":
-      the_bot.disconnect("later");
+    // Only need this when testing reconnect shit
+    // case "quit":
+    //   the_bot.disconnect("later");
     case "counters":
       if (tester[2] == null)  the_bot.say(from, "Please enter a champ you'd like counters for, ex: '!sq counters Temo'");
       else                    get_data(search_term(tester, "channel"), command, from);
