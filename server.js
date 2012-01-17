@@ -9,14 +9,14 @@ var server  = http.createServer(function (req, res) {
   });
 }).listen(process.env.PORT || 3000);
 
-var the_bot = new irc.Client("irc.quakenet.org", "soloqueue", { port: 6667, channels: ["#soloqueue"] });
+var the_bot = new irc.Client("irc.quakenet.org", "soloqueue", { port: 6667, channels: ["#soloqueue", "#reddit.lol"] });
 var bot_disconnected = false;
 setup_bot_listeners(the_bot);
 
 var statusCheck = setInterval(function () {
   if (bot_disconnected) {
     bot_disconnected = false;
-    the_bot = new irc.Client("irc.quakenet.org", "soloqueue", { port: 6667, channels: ["#soloqueue"] });
+    the_bot = new irc.Client("irc.quakenet.org", "soloqueue", { port: 6667, channels: ["#soloqueue", "#reddit.lol"] });
     setup_bot_listeners(the_bot);
   }
 }, 2000);
@@ -124,6 +124,8 @@ function handle_data (data, command, from) {
 
 function setup_bot_listeners (the_bot) {
   the_bot.addListener("message", function (from, channel, msg) {
+    if (from == "jermenkoo") return; // REALLY REALLY LAME BLACKLIST ATTEMPT O_o
+    
     var is_pm = (channel.indexOf("#") == 0 ? false : true);
     
     var message = msg.replace(/^\s\s*/, '').replace(/\s\s*$/, '').split(" ");
