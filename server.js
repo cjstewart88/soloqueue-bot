@@ -65,7 +65,7 @@ function handle_data (data, command, from) {
   
   switch (command) {
     case "counters":
-      the_bot.say(from, the_data.data[0][0] + " counters: " + (the_data.data[0][1] != null ? the_data.data[0][1].counters.join(", ") : "n/a") + "[More on: http://www.soloqueue.com/" + the_data.data[0][0] + "]");
+      the_bot.say(from, the_data.data[0][0] + " counters: " + (the_data.data[0][1] != null ? the_data.data[0][1].counters.join(", ") : "n/a") + "[More on: http://www.soloqueue.com/#" + the_data.data[0][0] + "]");
                                
       break;
     case "champ":
@@ -88,7 +88,7 @@ function handle_data (data, command, from) {
         }
       });
       
-      if (found_champ)  the_bot.say(from, "Champion Name: " + champ_name + response + "[More on: http://www.soloqueue.com/" + champ_name + "]");
+      if (found_champ)  the_bot.say(from, "Champion Name: " + champ_name + response + "[More on: http://www.soloqueue.com/#" + champ_name + "]");
       else              the_bot.say(from, "Sorry, the champion you requested data on couldn't be found.");
       
       break;
@@ -115,7 +115,7 @@ function handle_data (data, command, from) {
         }
       });
       
-      if (found_item) the_bot.say(from, "Item Name: " + item_name + response + "[More on: http://www.soloqueue.com/" + item_name + "]");
+      if (found_item) the_bot.say(from, "Item Name: " + item_name + response + "[More on: http://www.soloqueue.com/#" + item_name + "]");
       else            the_bot.say(from, "Sorry, the item you requested data on couldn't be found, maybe try searching on http://www.soloqueue.com/");
       
       break;
