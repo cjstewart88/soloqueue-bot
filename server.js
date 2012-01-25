@@ -1,4 +1,10 @@
 var http  = require("http");
+
+var server  = http.createServer(function (req, res) {	  	
+  res.writeHead(200, {"Content-Type": "text/plain"});
+  res.end("PONG");
+}).listen(process.env.PORT || 3000);
+
 var irc   = require("./lib/irc/irc.js");
 
 var the_bot           = null;
