@@ -13,7 +13,7 @@ var bot_disconnected  = false;
 start_bot();
 
 function start_bot () {
-  the_bot = new irc.Client("irc.freenode.net", "soloqueue", { port: 6667, channels: ["#mjc"] });
+  the_bot = new irc.Client("irc.quakenet.org", "soloqueue", { port: 6667, channels: ["#soloqueue", "#reddit.lol"] });
   bot_disconnected = false;
   setup_bot_listeners(the_bot);  
 }
